@@ -10,6 +10,7 @@ import ChatReducer from './reducers/chatReducer';
 import GroupsReducer from './reducers/groupsReducer';
 import DirectMessagesReducer from './reducers/directMessagesReducer';
 import UserInfoReducer from './reducers/userInfoReducer';
+import "./styles/styles.scss";
 
 const initialStoreState = {
     groups: [],

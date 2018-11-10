@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as actionTypes from './actionTypes';
 import {URL} from '../constants';
+import React from "react";
 
 export const getChatListForUser = (userId) => (dispatch) => {
     const getGroupsPromise = axios.get(URL.getGroupsForUser(userId));
@@ -62,10 +63,13 @@ export const addMessage = (content, userId, directMessageId, groupId) => (dispat
 
 function mapMessages(messages, userId) {
     return messages.map((message) => {
+        const formattedTime = new Date(message.created_at).toLocaleString();
+        const messageInfo = `${message.sender.name} at ${formattedTime}:`;
+        const messageText = <div><span>{messageInfo}</span><br/>{message.content}</div>;
         return {
-            "type": message.sender.id === userId ? 1 : 0,
-            "image": "anonymous.jpg",
-            "text": `${message.sender.name} at ${message.created_at}: \n ${message.content}`
+            "type": message.sender.id === userId ? 0 : 1,
+            "image": URL.getImage(),
+            "text": messageText
         };
     });
 }

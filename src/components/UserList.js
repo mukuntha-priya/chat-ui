@@ -29,7 +29,7 @@ class UserList extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="user-list">
                 <div className="dropdown">
                     <Select
                     value={this.state.selectedUser}
@@ -37,7 +37,7 @@ class UserList extends React.Component {
                     options={this.props.allUsers}
                     />
                 </div>
-                <button onClick={this.onSelect}>Go</button>
+                <button className="btn" onClick={this.onSelect}>Go</button>
             </div>
         );
     }

@@ -22,7 +22,7 @@ class DirectMessage extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="main">
                 <h2>{this.state.directMessage.recipient.name}</h2>
                 <ChatBubble messages={this.props.chat} onNewMessage={this.sendMessage}/>
             </div>
