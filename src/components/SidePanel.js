@@ -8,9 +8,7 @@ class SidePanel extends React.Component {
                 <div className="group-list">
                     <div className="header">
                         <h3 className="title">Groups</h3>
-                        <button className="btn" onClick={() => {
-                        }}>Add
-                        </button>
+                        <button className="btn" onClick={this.props.createNewGroup}>Add</button>
                     </div>
                     {
                         this.props.groups.map((group) => (

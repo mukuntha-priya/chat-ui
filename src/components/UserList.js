@@ -30,6 +30,7 @@ class UserList extends React.Component {
     render() {
         return (
             <div className="user-list">
+                <label>Choose user:</label>
                 <div className="dropdown">
                     <Select
                     value={this.state.selectedUser}

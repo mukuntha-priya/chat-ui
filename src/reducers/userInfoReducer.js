@@ -2,8 +2,7 @@ import {GET_ALL_USERS, SET_USER} from "../actions/actionTypes";
 
 export default function UserInfoReducer(state = {
     user: null,
-    allUsers: [],
-    filteredUsers: []
+    allUsers: []
 }, action) {
     switch (action.type) {
         case GET_ALL_USERS:

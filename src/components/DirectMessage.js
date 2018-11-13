@@ -16,6 +16,15 @@ class DirectMessage extends React.Component {
         getDirectMessageChat(this.state.directMessage.id, this.props.user.id)(this.props.dispatch);
     }
 
+    componentWillReceiveProps(nextProps) {
+        let newDirectMessageId = nextProps.match.params.directMessageId;
+        if (newDirectMessageId !== this.props.match.params.directMessageId) {
+            const directMessage = this.props.directMessages.filter((dm) => dm.id === +newDirectMessageId)[0];
+            getDirectMessageChat(directMessage.id, this.props.user.id)(this.props.dispatch);
+            this.setState({ directMessage });
+        }
+    }
+
     sendMessage = (content) => {
         addMessage(content, this.props.user.id, this.state.directMessage.id, null)(this.props.dispatch);
     };
