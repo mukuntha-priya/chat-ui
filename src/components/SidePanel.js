@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 
 class SidePanel extends React.Component {
     render() {
+        const selectedChat = this.props.selectedChat;
         return (
             <div className="sidenav">
                 <div className="group-list">
@@ -12,8 +13,11 @@ class SidePanel extends React.Component {
                     </div>
                     {
                         this.props.groups.map((group) => (
-                            <div className="name">
+                            <div className={ selectedChat.type === 'GROUP' && selectedChat.id === group.id ? "name selected": "name"}>
                                 <Link to={`/slack/groups/${group.id}`}>{group.name}</Link>
+                                {
+                                    group.unreadCount > 0 && <span> ({group.unreadCount})</span>
+                                }
                             </div>
                         ))
                     }
@@ -24,9 +28,12 @@ class SidePanel extends React.Component {
                     </div>
                     {
                         this.props.directMessages.map((directMessage) => (
-                            <div className="name">
+                            <div className={ selectedChat.type === 'DIRECT_MESSAGE' && selectedChat.id === directMessage.id ? "name selected": "name"}>
                                 <Link
                                     to={`/slack/direct-messages/${directMessage.id}`}>{directMessage.recipient.name}</Link>
+                                {
+                                    directMessage.unreadCount > 0 && <span> ({directMessage.unreadCount})</span>
+                                }
                             </div>
                         ))
                     }

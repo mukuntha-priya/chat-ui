@@ -16,7 +16,9 @@ const initialStoreState = {
     groups: [],
     directMessages: [],
     userInfo: {},
-    chat: []
+    chat: {
+        messages: []
+    }
 };
 
 const reducers = combineReducers({

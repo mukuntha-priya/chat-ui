@@ -41,7 +41,7 @@ class DirectMessage extends React.Component {
 
 const mapStateToProps = state => ({
     user: state.userInfo.user,
-    chat: state.chat,
+    chat: state.chat.messages,
     directMessages: state.directMessages
 });
 

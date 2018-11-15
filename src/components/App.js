@@ -28,12 +28,14 @@ class App extends React.Component {
     hidePopup = () => { this.setState({ showCreateGroupForm: false })};
 
     render() {
+        const selectedChat = { type: this.props.chat.type, id: this.props.chat.id };
         return (
           <div>
               <SidePanel
                   directMessages={this.props.directMessages}
                   groups={this.props.groups}
                   createNewGroup={this.createNewGroup}
+                  selectedChat={selectedChat}
               />
               <Route path={`${this.props.match.url}/direct-messages/:directMessageId`} component={DirectMessageWrapper}/>
               <Route path={`${this.props.match.url}/groups/:groupId`} component={GroupChatWrapper}/>
@@ -52,7 +54,8 @@ class App extends React.Component {
 const mapStateToProps = state => ({
     groups: state.groups,
     directMessages: state.directMessages,
-    user: state.userInfo.user
+    user: state.userInfo.user,
+    chat: state.chat
 });
 
 const mapDispatchToProps = dispatch => ({ dispatch });

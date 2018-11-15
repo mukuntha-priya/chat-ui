@@ -1,4 +1,4 @@
-import {GET_CHAT_LIST_FOR_USER, CREATE_GROUP, UPDATE_GROUP} from "../actions/actionTypes";
+import {GET_CHAT_LIST_FOR_USER, CREATE_GROUP, UPDATE_GROUP, GET_GROUP_CHAT} from "../actions/actionTypes";
 
 export default function GroupsReducer(state = [], action) {
     switch (action.type) {
@@ -12,6 +12,11 @@ export default function GroupsReducer(state = [], action) {
             const updatedGroups = state.filter((group) => group.id !== action.payload.id);
             updatedGroups.push(action.payload);
             return updatedGroups;
+        case GET_GROUP_CHAT:
+            const allGroups = [].concat(state);
+            const group = allGroups.filter((group) => group.id === +action.payload.id)[0];
+            group.unreadCount = 0;
+            return allGroups;
         default:
             return state;
     }

@@ -7,8 +7,21 @@ export const getChatListForUser = (userId) => (dispatch) => {
     const getGroupsPromise = axios.get(URL.getGroupsForUser(userId));
     const getDirectMessagesPromise = axios.get(URL.getDirectMessagesForUser(userId));
     return Promise.all([getGroupsPromise, getDirectMessagesPromise]).then((response) => {
-        const groups = response[0].data;
-        const directMessages = response[1].data.map((dm) => mapToDirectMessage(dm, userId));
+        const groupDetails = response[0].data;
+        const directMessageDetails = response[1].data;
+        const directMessages = directMessageDetails.map((dm) => {
+            const messageDetails = mapToDirectMessage(dm.direct_message, userId);
+            return {
+                ...messageDetails,
+                unreadCount: dm.unreadCount
+            }
+        });
+        const groups = groupDetails.map((group) => {
+           return {
+               ...group.group,
+               unreadCount: group.unreadCount
+           };
+        });
         dispatch({
             type: actionTypes.GET_CHAT_LIST_FOR_USER,
             payload: {
@@ -25,7 +38,10 @@ export const getDirectMessageChat = (directMessageId, userId) => (dispatch) => {
         messages = mapMessages(messages, userId, false);
         dispatch({
             type: actionTypes.GET_DIRECT_MESSAGE_CHAT,
-            payload: messages
+            payload: {
+                id: directMessageId,
+                messages
+            }
         })
     });
 };
@@ -46,7 +62,10 @@ export const getGroupChat = (groupId, userId, history) => (dispatch) => {
         messages = mapMessages(messages, userId, true, openDirectMessage);
         dispatch({
             type: actionTypes.GET_GROUP_CHAT,
-            payload: messages
+            payload: {
+                id: groupId,
+                messages
+            }
         })
     });
 };

@@ -1,13 +1,25 @@
 import {GET_DIRECT_MESSAGE_CHAT, GET_GROUP_CHAT, ADD_MESSAGE} from "../actions/actionTypes";
 
-export default function ChatReducer(state = [], action) {
+export default function ChatReducer(state = {}, action) {
     switch (action.type) {
         case GET_DIRECT_MESSAGE_CHAT:
-            return action.payload;
+            return {
+                type: 'DIRECT_MESSAGE',
+                id: +action.payload.id,
+                messages: action.payload.messages
+            };
         case GET_GROUP_CHAT:
-            return action.payload;
+            return {
+                type: 'GROUP',
+                id: +action.payload.id,
+                messages: action.payload.messages
+            };
         case ADD_MESSAGE:
-            return [].concat(state, action.payload);
+            let messages = [].concat(state.messages, action.payload);
+            return {
+                ...state,
+                messages
+            };
         default:
             return state;
     }
