@@ -12,4 +12,6 @@ export const URL = {
     getOrCreateDirectMessage: (user1, user2) => getURL(`messages/dm?user1=${user1}&user2=${user2}`)
 };
 
+export const pollInterval = 10000;
+
 const getURL = (path) => `http://localhost:8000/slack/${path}`;

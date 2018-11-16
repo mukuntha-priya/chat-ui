@@ -2,8 +2,10 @@ import React from 'react';
 import ChatBubble from 'react-chat-bubble';
 import {connect} from "react-redux";
 import {addMessage, getDirectMessageChat} from "../actions/MessagingActions";
+import {pollInterval} from "../constants";
 
 class DirectMessage extends React.Component {
+    timeoutEntry = null;
     constructor(props) {
         super(props);
         const directMessageId = props.match.params.directMessageId;
@@ -13,17 +15,26 @@ class DirectMessage extends React.Component {
     }
 
     componentDidMount() {
-        getDirectMessageChat(this.state.directMessage.id, this.props.user.id)(this.props.dispatch);
+        this.timeoutEntry = setTimeout(() => this.pollChat());
     }
 
     componentWillReceiveProps(nextProps) {
         let newDirectMessageId = nextProps.match.params.directMessageId;
         if (newDirectMessageId !== this.props.match.params.directMessageId) {
             const directMessage = this.props.directMessages.filter((dm) => dm.id === +newDirectMessageId)[0];
-            getDirectMessageChat(directMessage.id, this.props.user.id)(this.props.dispatch);
             this.setState({ directMessage });
+            this.fetchChat(directMessage.id);
         }
     }
+
+    pollChat = () => {
+        this.fetchChat(this.state.directMessage.id);
+        this.timeoutEntry = setTimeout(() => this.pollChat(), pollInterval);
+    };
+
+    fetchChat = (directMessageId) => {
+        getDirectMessageChat(directMessageId, this.props.user.id)(this.props.dispatch);
+    };
 
     sendMessage = (content) => {
         addMessage(content, this.props.user.id, this.state.directMessage.id, null)(this.props.dispatch);
@@ -36,6 +47,10 @@ class DirectMessage extends React.Component {
                 <ChatBubble messages={this.props.chat} onNewMessage={this.sendMessage}/>
             </div>
         );
+    }
+
+    componentWillUnmount() {
+        this.timeoutEntry && clearTimeout(this.timeoutEntry);
     }
 }
 

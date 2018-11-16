@@ -7,9 +7,10 @@ import DirectMessageWrapper from "./DirectMessage";
 import GroupChatWrapper from "./GroupChat";
 import CreateGroupForm from "./CreateGroupForm";
 import Modal from "./Modal";
+import {pollInterval} from "../constants";
 
 class App extends React.Component {
-
+    timeoutEntry = null;
     constructor(props) {
         super(props);
         this.state = {
@@ -18,8 +19,13 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        getChatListForUser(this.props.user.id)(this.props.dispatch);
+        this.timeoutEntry = setTimeout(() => this.pollChatList());
     }
+
+    pollChatList = () => {
+        getChatListForUser(this.props.user.id)(this.props.dispatch);
+        this.timeoutEntry = setTimeout(() => this.pollChatList(), pollInterval);
+    };
 
     createNewGroup = () => {
         this.setState({ showCreateGroupForm: true });
@@ -48,6 +54,10 @@ class App extends React.Component {
               }
           </div>
         );
+    }
+
+    componentWillUnmount() {
+        this.timeoutEntry && clearTimeout(this.timeoutEntry);
     }
 }
 

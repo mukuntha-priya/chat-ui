@@ -4,8 +4,10 @@ import {connect} from "react-redux";
 import {addMessage, getGroupChat} from "../actions/MessagingActions";
 import UpdateGroupForm from "./UpdateGroupForm";
 import {withRouter} from "react-router-dom";
+import {pollInterval} from "../constants";
 
 class GroupChat extends React.Component {
+    timeoutEntry = null;
     constructor(props) {
         super(props);
         const groupId = props.match.params.groupId;
@@ -16,18 +18,26 @@ class GroupChat extends React.Component {
     }
 
     componentDidMount() {
-        getGroupChat(this.state.group.id, this.props.user.id, this.props.history)(this.props.dispatch);
+        this.timeoutEntry = setTimeout(() => this.pollChat());
     }
 
     componentWillReceiveProps(nextProps) {
-        const groupId = nextProps.match.params.groupId;
-        let updatedGroup = nextProps.groups.filter((group) => group.id === +groupId)[0];
+        const newGroupId = nextProps.match.params.groupId;
+        let updatedGroup = nextProps.groups.filter((group) => group.id === +newGroupId)[0];
         this.setState({group: updatedGroup});
-        let newGroupId = nextProps.match.params.groupId;
         if (newGroupId !== this.props.match.params.groupId) {
-            getGroupChat(newGroupId, this.props.user.id, this.props.history)(this.props.dispatch);
+            this.fetchChat(newGroupId);
         }
     }
+
+    pollChat = () => {
+        this.fetchChat(this.state.group.id);
+        this.timeoutEntry = setTimeout(() => this.pollChat(), pollInterval);
+    };
+
+    fetchChat = (groupId) => {
+        getGroupChat(groupId, this.props.user.id, this.props.history)(this.props.dispatch);
+    };
 
     sendMessage = (content) => {
         addMessage(content, this.props.user.id, null, this.state.group.id)(this.props.dispatch);
@@ -56,6 +66,10 @@ class GroupChat extends React.Component {
                 }
             </div>
         );
+    }
+
+    componentWillUnmount() {
+        this.timeoutEntry && clearTimeout(this.timeoutEntry);
     }
 }
 
