@@ -3,6 +3,8 @@ import ChatBubble from 'react-chat-bubble';
 import {connect} from "react-redux";
 import {addMessage, getDirectMessageChat} from "../actions/MessagingActions";
 import {pollInterval} from "../constants";
+import { getMessageContent } from "../util/MessageUtil";
+import ThreadChat from "./ThreadChat";
 
 class DirectMessage extends React.Component {
     timeoutEntry = null;
@@ -11,6 +13,8 @@ class DirectMessage extends React.Component {
         const directMessageId = props.match.params.directMessageId;
         this.state = {
             directMessage: props.directMessages.filter((dm) => dm.id === +directMessageId)[0],
+            originalMessageId: null,
+            showThreadView: false
         };
     }
 
@@ -37,14 +41,47 @@ class DirectMessage extends React.Component {
     };
 
     sendMessage = (content) => {
-        addMessage(content, this.props.user.id, this.state.directMessage.id, null)(this.props.dispatch);
+        const newMessage = this.getNewMessage(content);
+        addMessage(newMessage)(this.props.dispatch);
     };
 
+    getNewMessage = (content) => {
+        return {
+            content,
+            userId: this.props.user.id,
+            directMessageId: this.state.directMessage.id,
+            groupId: null
+        };
+    };
+
+    onReplyTo = (messageId) => {
+        this.setState({
+            originalMessageId: messageId,
+            showThreadView: true
+        });
+    };
+
+    exitThreadView = () => this.setState({ originalMessageId: null, showThreadView: false });
+
     render() {
+        const messages = getMessageContent(this.props.chat, this.props.user.id, false, {}, this.onReplyTo);
         return (
             <div className="main">
                 <h2>{this.state.directMessage.recipient.name}</h2>
-                <ChatBubble messages={this.props.chat} onNewMessage={this.sendMessage}/>
+                {this.state.showThreadView ?
+                    <ThreadChat
+                        originalMessageId={this.state.originalMessageId}
+                        messages={this.props.chat}
+                        userId={this.props.user.id}
+                        getNewMessage={this.getNewMessage}
+                        exitThreadView={this.exitThreadView}
+                        onAddNewMessage={() => { this.fetchChat(this.state.directMessage.id); }}
+                    /> :
+                    <ChatBubble
+                        messages={messages}
+                        onNewMessage={this.sendMessage}
+                    />
+                }
             </div>
         );
     }

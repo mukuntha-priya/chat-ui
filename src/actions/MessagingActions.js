@@ -17,10 +17,10 @@ export const getChatListForUser = (userId) => (dispatch) => {
             }
         });
         const groups = groupDetails.map((group) => {
-           return {
-               ...group.group,
-               unreadCount: group.unreadCount
-           };
+            return {
+                ...group.group,
+                unreadCount: group.unreadCount
+            };
         });
         dispatch({
             type: actionTypes.GET_CHAT_LIST_FOR_USER,
@@ -35,7 +35,6 @@ export const getChatListForUser = (userId) => (dispatch) => {
 export const getDirectMessageChat = (directMessageId, userId) => (dispatch) => {
     return axios.get(URL.getDirectMessageChat(directMessageId, userId)).then((response) => {
         let messages = response.data;
-        messages = mapMessages(messages, userId, false);
         dispatch({
             type: actionTypes.GET_DIRECT_MESSAGE_CHAT,
             payload: {
@@ -46,20 +45,20 @@ export const getDirectMessageChat = (directMessageId, userId) => (dispatch) => {
     });
 };
 
-export const getGroupChat = (groupId, userId, history) => (dispatch) => {
+export const openDirectMessage = (userId, userId2, history) => dispatch => {
+    axios.get(URL.getOrCreateDirectMessage(userId, userId2)).then((response) => {
+        const directMessage = response.data;
+        dispatch({
+            type: actionTypes.GET_OR_CREATE_DIRECT_MESSAGE,
+            payload: mapToDirectMessage(directMessage, userId)
+        });
+        history.push(`/slack/direct-messages/${directMessage.id}`);
+    });
+};
+
+export const getGroupChat = (groupId, userId) => (dispatch) => {
     return axios.get(URL.getGroupChat(groupId, userId)).then((response) => {
         let messages = response.data;
-        const openDirectMessage = (userId2) => {
-            axios.get(URL.getOrCreateDirectMessage(userId, userId2)).then((response) => {
-                const directMessage = response.data;
-                dispatch({
-                    type: actionTypes.GET_OR_CREATE_DIRECT_MESSAGE,
-                    payload: mapToDirectMessage(directMessage, userId)
-                });
-                history.push(`/slack/direct-messages/${directMessage.id}`);
-            });
-        };
-        messages = mapMessages(messages, userId, true, openDirectMessage);
         dispatch({
             type: actionTypes.GET_GROUP_CHAT,
             payload: {
@@ -77,38 +76,22 @@ const mapToDirectMessage = (dm, userId) => {
     }
 };
 
-export const addMessage = (content, userId, directMessageId, groupId) => (dispatch) => {
-    return axios.post(URL.addMessage(), {
-        userId,
-        directMessageId,
-        groupId,
-        content
-    }).then((response) => {
-        let message = mapMessages([response.data], userId, false);
+export const addMessage = (data) => (dispatch) => {
+    return axios.post(URL.addMessage(), data).then((response) => {
         dispatch({
             type: actionTypes.ADD_MESSAGE,
-            payload: message
+            payload: response.data
         })
     });
 };
 
-function mapMessages(messages, userId, addLinkForSenders, onClick) {
-    return messages.map((message) => {
-        const formattedTime = new Date(message.created_at).toLocaleString();
-        let sender;
-        if (addLinkForSenders && message.sender.id !== userId) {
-            sender = <a href="#" onClick={() => onClick(message.sender.id)}>{message.sender.name}</a>;
-        } else {
-            sender = message.sender.name;
-        }
-        const messageText = <div><span>{sender} at {formattedTime}</span><br/>{message.content}</div>;
-        return {
-            "type": message.sender.id === userId ? 0 : 1,
-            "image": URL.getImage(),
-            "text": messageText
-        };
-    });
-}
+export const createThread = (data) => {
+    return axios.post(URL.createThread(), data);
+};
+
+export const addToThread = (data) => {
+    return axios.post(URL.addToThread(), data);
+};
 
 export const createGroup = (groupName, users) => dispatch => {
     const userIds = users.map(u => u.value);

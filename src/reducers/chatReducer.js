@@ -15,7 +15,8 @@ export default function ChatReducer(state = {}, action) {
                 messages: action.payload.messages
             };
         case ADD_MESSAGE:
-            let messages = [].concat(state.messages, action.payload);
+            let messages = [].concat(state.messages);
+            messages.push(action.payload);
             return {
                 ...state,
                 messages
